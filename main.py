@@ -11,7 +11,9 @@ from datetime import datetime
 import re
 import smtplib
 from keep_alive import keep_alive
-
+import os
+from replit import db
+from csv import DictWriter
 
 chrome_options = Options()
 #chrome_options.add_argument('--headless')
@@ -20,8 +22,8 @@ chrome_options.add_argument('--disable-dev-shm-usage')
 
 driver = webdriver.Chrome(options=chrome_options)
 #direct it to the homepage
-email_address="testingcode9413@gmail.com"
-email_password="community1234$"
+email_address=os.environ['email_address']
+email_password=os.environ['email_password']
 
 keep_alive()
 while True:
@@ -30,7 +32,7 @@ while True:
   hours=datetime_central.strftime("%H")
   mins=datetime_central.strftime("%M")
   print(datetime_central)
-  if hours=='11' and mins=='10':
+  if hours=='11' and mins=='15':
     central = timezone('US/Central')
     datetime_central=datetime.now(central)
     print(datetime_central)
@@ -75,35 +77,7 @@ while True:
     childrens=re.findall(r'([0-9]+[0-9,]+||[0-9]) children',news_block)
     
     
-    df=pd.DataFrame({'date':[''],
-                    'publised_date':[''],
-                     'total_death':[''],
-                     'total_death_men':[''],
-                     'total_death_women':[''],
-                     'total_death_girls':[''],
-                     'total_death_boys':[''],
-                     'total_death_children':[''],
-                     'total_death_adults':[''],
-                     'total_injured':[''],
-                     'total_injured_men':[''],
-                     'total_injured_women':[''],
-                     'total_injured_girls':[''],
-                     'total_injured_boys':[''],
-                     'total_injured_children':[''],
-                     'total_injured_adults':[''],
-                     'casualties_cptl':[''],
-                     'death_cptl':[''],
-                     'injured_cptl':[''],
-                     'casaulties_gov_ctrl':[''],
-                     'death_gov_ctrl':[''],
-                     'injured_gov_ctrl':[''],
-                     'casaulties_republic':[''],
-                     'death_republic':[''],
-                     'injured_republic':[''],
-                     'casaulties_other_area':[''],
-                     'death_other_area':[''],
-                     'injured_other_area':['']
-                     })
+    
     
     
     date=dates[0]
@@ -144,7 +118,7 @@ while True:
     death_other_area=deaths[5]
     injured_other_area=injured[5]
     
-    df=df.append({  'date':date,
+    dict= {'date':date,
                     'published_date':published_date,
                      'total_death':total_death,
                      'total_death_men':total_death_men,
@@ -171,23 +145,43 @@ while True:
                      'injured_republic':injured_republic,
                      'casaulties_other_area':casaulties_other_area,
                      'death_other_area':death_other_area,
-                     'injured_other_area':injured_other_area},ignore_index=True)
+                     'injured_other_area':injured_other_area}
+    headersCSV=['date',
+                    'published_date',
+                     'total_death',
+                     'total_death_men',
+                     'total_death_women',
+                     'total_death_girls',
+                     'total_death_boys',
+                     'total_death_children',
+                     'total_death_adults',
+                     'total_injured',
+                     'total_injured_men',
+                     'total_injured_women',
+                     'total_injured_girls',
+                     'total_injured_boys',
+                     'total_injured_children',
+                     'total_injured_adults',
+                     'casualties_cptl',
+                     'death_cptl',
+                     'injured_cptl',
+                     'casaulties_gov_ctrl',
+                     'death_gov_ctrl',
+                     'injured_gov_ctrl',
+                     'casaulties_republic',
+                     'death_republic',
+                     'injured_republic',
+                     'casaulties_other_area',
+                     'death_other_area',
+                     'injured_other_area']
+
+
+    
+    with open("ukraine.csv",'a',newline="") as f:
+      dictwriter_object=DictWriter(f,fieldnames=headersCSV)
+      dictwriter_object.writerow(dict)
+      f.close
     
     
-    print(df)
-    with smtplib.SMTP('smtp.gmail.com',587) as smtp:
-      smtp.ehlo()
-      smtp.starttls()
-      smtp.ehlo()
-      
-      smtp.login(email_address,email_password)
-      
-      subject="Date:"+str(date)
-      body="Total number of deaths:"+str(total_death)
-      
-      msg=f'Subject:{subject}\n\n{body}'
-      
-      smtp.sendmail(email_address,email_address,msg)
-      print('Email is sent')
     time.sleep(50)
   time.sleep(10)
